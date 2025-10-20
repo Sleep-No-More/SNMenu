@@ -7,8 +7,8 @@ arch=('x86_64')
 url="https://github.com/Sleep-No-More/cpmenu"
 license=('MIT')
 depends=('gtk3' 'cairo')
-source=("https://github.com/Sleep-No-More/cpmenu/releases/download/${pkgver}/cpmenu")
-sha256sums=('d2f065de4a90050dfd62b220810e406b1f999726d244224575ac3b7d774a189c')
+source=("https://github.com/Sleep-No-More/cpmenu/releases/download/v${pkgver}/cpmenu")
+sha256sums=('30d60bf853b7d57fa003ad971ee49f3891b6256d285d84920113031d2e7189b2')
 
 package() {
     install -Dm755 "cpmenu" "$pkgdir/usr/bin/cpmenu"
