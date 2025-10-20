@@ -307,13 +307,12 @@ fn build_ui() {
         // Update cursor based on hover state
         if let Some(window) = widget.window() {
             let cursor = if clicked >= 0 {
-                gdk::Cursor::from_name(widget.display().as_ref(), "pointer")
+                gdk::Cursor::from_name(widget.display().as_ref(), "hand")
+                    .or_else(|| gdk::Cursor::from_name(widget.display().as_ref(), "pointer"))
             } else {
-                gdk::Cursor::from_name(widget.display().as_ref(), "default")
+                None
             };
-            if let Some(c) = cursor {
-                window.set_cursor(Some(&c));
-            }
+            window.set_cursor(cursor.as_ref());
         }
 
         false.into()
