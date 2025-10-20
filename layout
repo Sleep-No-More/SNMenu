@@ -7,31 +7,31 @@
     },
     {
         "label" : "hibernate",
-        "action" : "systemctl hibernate",
+        "action" : "loginctl hibernate",
         "text" : "Hibernate",
         "keybind" : "h"
     },
     {
         "label" : "logout",
-        "action" : "pkill -TERM Hyprland",
+        "action" : "loginctl terminate-session $XDG_SESSION_ID",
         "text" : "Logout",
         "keybind" : "e"
     },
     {
         "label" : "shutdown",
-        "action" : "systemctl poweroff",
+        "action" : "loginctl poweroff",
         "text" : "Shutdown",
         "keybind" : "s"
     },
     {
         "label" : "suspend",
-        "action" : "systemctl suspend",
+        "action" : "loginctl suspend",
         "text" : "Suspend",
         "keybind" : "u"
     },
     {
         "label" : "reboot",
-        "action" : "systemctl reboot",
+        "action" : "loginctl reboot",
         "text" : "Reboot",
         "keybind" : "r"
     }
