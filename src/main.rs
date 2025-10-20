@@ -286,7 +286,7 @@ fn build_ui() {
         let height = widget.allocated_height() as f64;
         let center_x = width / 2.0;
         let center_y = height / 2.0;
-        let radius = if width < height { width } else { height } * 0.30;
+        let radius = if width < height { width } else { height } * 0.35;
 
         let clicked = get_clicked_button(
             event.position().0,
@@ -304,6 +304,18 @@ fn build_ui() {
             widget.queue_draw();
         }
 
+        // Update cursor based on hover state
+        if let Some(window) = widget.window() {
+            let cursor = if clicked >= 0 {
+                gdk::Cursor::from_name(widget.display().as_ref(), "pointer")
+            } else {
+                gdk::Cursor::from_name(widget.display().as_ref(), "default")
+            };
+            if let Some(c) = cursor {
+                window.set_cursor(Some(&c));
+            }
+        }
+
         false.into()
     });
     let state_click = state.clone();
@@ -313,7 +325,7 @@ fn build_ui() {
         let height = widget.allocated_height() as f64;
         let center_x = width / 2.0;
         let center_y = height / 2.0;
-        let radius = if width < height { width } else { height } * 0.30;
+        let radius = if width < height { width } else { height } * 0.35;
 
         let clicked = get_clicked_button(
             event.position().0,
