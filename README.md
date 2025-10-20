@@ -2,33 +2,22 @@
 
 A modern circular power menu for Wayland desktop environments. Built in Rust with GTK3 and Cairo.
 
-## Current Setup: v0.1.0 (Custom Red Shutdown Button)
+Inspired by [wlogout](https://github.com/ArtsyMacaw/wlogout).
 
-October 19, 2025 - Enhanced Rust implementation with custom red shutdown button
+## Features
 
-### Features
-
-- Red Shutdown Button - Highlighted in bright red for visual distinction
-- Light Blue Base Buttons - Clean professional color scheme
-- 60 FPS Smooth Animations - Icon scaling on hover
-- 6 Power Actions - Lock, Hibernate, Logout, Shutdown, Suspend, Reboot
-- Professional Design - Semi-transparent donut ring layout
-- Keyboard Shortcuts - Quick access with letter keys (L, H, E, S, U, R)
-- Wayland Optimized - Full integration with Hyprland
-- JSON Configuration - Customizable buttons and actions
+- Circular Layout - Semi-transparent donut ring design
+- Customizable Buttons - JSON configuration for actions
+- Smooth Animations - Fast, responsive interface
+- Keyboard Shortcuts - Quick access with configurable key bindings
+- Themeable - GTK CSS styling support
+- Wayland Native - Built for modern Wayland compositors
 
 ## Screenshots
 
-![CPMenu Circular Power Menu](screenshots/cpmenu-menu.png)
+![CPMenu Circular Power Menu](screenshots/screenshot_20251020_105201.png)
 
-The circular power menu displays 6 wedge-shaped buttons arranged in a donut pattern:
-
-- Lock (top-left)
-- Hibernate (left)
-- Logout (bottom-left)
-- Shutdown (bottom, highlighted in red)
-- Suspend (right)
-- Reboot (top-right)
+A circular menu layout with wedge-shaped buttons arranged in a ring pattern.
 
 ## Installation
 
@@ -88,7 +77,7 @@ JSON array format:
 
 Button properties:
 
-- label: Unique identifier (buttons with "shutdown" or "power" are colored red)
+- label: Unique identifier for button styling
 - action: Command to execute
 - text: Display text on button
 - keybind: Optional keyboard shortcut character
@@ -101,66 +90,28 @@ Customize button appearance using GTK CSS.
 
 ## Hyprland Integration
 
-### Keybinding
-
-Add to ~/.config/hypr/keybindings.conf:
-
-```bash
-bind = $mainMod SHIFT, P, exec, cpmenu -l ~/.config/cpmenu/layout -C ~/.config/cpmenu/style.css
-```
-
 ### Waybar Integration
 
-Add to ~/.config/waybar/config.jsonc:
+Add a custom widget to ~/.config/waybar/config.jsonc:
 
 ```jsonc
-"custom/power": {
-    "format": "󰐥",
-    "tooltip": false,
+"custom/menu": {
+    "format": "Menu",
     "on-click": "cpmenu -l ~/.config/cpmenu/layout -C ~/.config/cpmenu/style.css"
 }
 ```
 
 ## Usage
 
-### Launch Methods
+Menu controls:
 
-1. Keyboard: Super + Shift + P
-2. Waybar: Click power button
-3. Terminal: cpmenu
-
-### Menu Controls
-
-When menu is open:
-
-- L - Lock screen
-- H - Hibernate
-- E - Logout
-- S - Shutdown (red button)
-- U - Suspend
-- R - Reboot
-- Esc - Close menu
-- Mouse - Click any button
+- Keyboard - Use configured key bindings
+- Mouse - Click buttons or press Esc to close
+- Hover - Visual feedback on button hover
 
 ## Color Customization
 
-To modify button colors, edit src/main.rs:
-
-```rust
-let (base_color, hover_color) = if btn.label.contains("shutdown") {
-    // Shutdown button - red
-    (
-        parse_color_with_alpha("#DC5050", 0.8),
-        parse_color_with_alpha("#E07070", 0.9),
-    )
-} else {
-    // Other buttons - light blue
-    (
-        parse_color_with_alpha("#81A1C1", 0.35),
-        parse_color_with_alpha("#5E81AC", 0.55),
-    )
-};
-```
+Modify button appearance by editing the stylesheet in ~/.config/cpmenu/style.css or modifying src/main.rs for runtime color values.
 
 Rebuild after changes:
 
@@ -180,27 +131,20 @@ sudo cp target/release/cpmenu /usr/local/bin/
 
 ## Performance
 
-- 60 FPS smooth rendering with Cairo
-- Minimal CPU usage during idle
-- Fast startup time (approximately 100ms)
-- Low memory footprint (approximately 10MB)
+- Smooth 60 FPS rendering with Cairo
+- Low CPU usage
+- Fast startup time
+- Minimal memory footprint
 
 ## Troubleshooting
 
-### Icon not found warnings
+### Configuration not loading
 
-Ensure cpmenu is installed system-wide and icons are available at:
-
-- /usr/share/cpmenu/assets/ (AUR package)
-- /usr/local/share/cpmenu/assets/ (manual installation)
-
-### JSON parsing errors
-
-Verify layout file is valid JSON array format, not newline-delimited JSON.
+Verify layout and style files exist at configured paths.
 
 ### CSS styling not applied
 
-Check style.css syntax - GTK CSS has different rules than web CSS.
+Ensure style.css syntax is valid GTK CSS.
 
 ## Development
 
@@ -227,12 +171,6 @@ cargo build --release
 # With debug logging
 RUST_LOG=debug ./target/debug/cpmenu
 ```
-
-## Version History
-
-- v0.1.0 (October 19, 2025) - Custom compiled with red shutdown button enhancement
-- v0.0.9 - Previous C implementation
-- v0.0.1 - Initial release
 
 ## License
 
