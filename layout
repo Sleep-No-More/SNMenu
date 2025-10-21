@@ -25,7 +25,7 @@
     },
     {
         "label" : "suspend",
-        "action" : "systemctl suspend",
+        "action" : "sudo systemctl suspend",
         "text" : "Suspend",
         "keybind" : "u"
     },

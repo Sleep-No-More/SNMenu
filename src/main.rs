@@ -389,13 +389,8 @@ fn build_ui() {
 }
 
 fn execute_command(command: &str) {
-    let mut parts = command.split_whitespace();
-    if let Some(cmd) = parts.next() {
-        let args: Vec<&str> = parts.collect();
-
-        if let Err(e) = Command::new(cmd).args(&args).spawn() {
-            log::error!("Failed to execute command: {} - {}", command, e);
-        }
-        // Don't wait - let command run in background and close menu immediately
+    if let Err(e) = Command::new("sh").arg("-c").arg(command).spawn() {
+        log::error!("Failed to execute command: {} - {}", command, e);
     }
+    // Don't wait - let command run in background and close menu immediately
 }
