@@ -3,7 +3,6 @@ use std::f64::consts::PI;
 
 // Animation configuration constants.
 const INNER_RADIUS_RATIO: f64 = 0.3;
-const MENU_RADIUS_PERCENT: f64 = 0.35;
 const ICON_SIZE: f64 = 48.0;
 const LABEL_OFFSET: f64 = 40.0;
 const LABEL_FONT_SIZE: f64 = 14.0;

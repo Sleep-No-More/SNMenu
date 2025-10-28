@@ -39,11 +39,6 @@ impl Button {
     pub fn has_submenu(&self) -> bool {
         !self.children.is_empty()
     }
-
-    /// Check if this button is a leaf (executable) button
-    pub fn is_leaf(&self) -> bool {
-        !self.has_submenu()
-    }
 }
 
 /// Load configuration from JSON file

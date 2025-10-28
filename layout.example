@@ -1,3 +1,4 @@
+```plaintext
 [
     {
         "label": "lock",
@@ -43,5 +44,33 @@
         "color": "#DC143C",
         "hover_color": "#8B0000",
         "icon_char": "\uf011"
+    },
+    {
+        "label": "power_submenu",
+        "text": "Power Options",
+        "keybind": "p",
+        "color": "#A3BE8C",
+        "hover_color": "#8FBC8F",
+        "icon_char": "\uf028",
+        "children": [
+            {
+                "label": "hibernate",
+                "action": "systemctl hibernate",
+                "text": "Hibernate",
+                "color": "#5E81AC",
+                "hover_color": "#434C7E",
+                "icon_char": "\uf02f"
+            },
+            {
+                "label": "sleep",
+                "action": "sudo systemctl suspend",
+                "text": "Sleep",
+                "color": "#81A1C1",
+                "hover_color": "#5E81AC",
+                "icon_char": "\uf04c"
+            }
+        ]
     }
 ]
+
+```

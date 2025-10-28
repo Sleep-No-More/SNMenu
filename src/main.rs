@@ -34,19 +34,16 @@ impl AppState {
 
     /// Get the current menu (top of stack)
     fn current_menu(&self) -> &Vec<Button> {
-        self.menu_stack.last().expect("Menu stack should never be empty")
-    }
-
-    /// Get mutable reference to current menu
-    fn current_menu_mut(&mut self) -> &mut Vec<Button> {
-        self.menu_stack.last_mut().expect("Menu stack should never be empty")
+        self.menu_stack
+            .last()
+            .expect("Menu stack should never be empty")
     }
 
     /// Navigate into a submenu
     fn push_submenu(&mut self, submenu: Vec<Button>) {
         self.menu_stack.push(submenu);
         self.hover_button = -1;
-        self.animation_progress = 0.0;
+        self.animation_progress = 0.0; // Start fade-in from 0
     }
 
     /// Navigate back to parent menu
@@ -54,7 +51,7 @@ impl AppState {
         if self.menu_stack.len() > 1 {
             self.menu_stack.pop();
             self.hover_button = -1;
-            self.animation_progress = 0.0;
+            self.animation_progress = 0.0; // Start fade-in from 0
         }
     }
 
@@ -76,7 +73,14 @@ fn main() {
 }
 
 fn get_layout_path() -> Result<String> {
-    // Try XDG_CONFIG_HOME first
+    // Try SNMENU_CONFIG environment variable first
+    if let Ok(config_path) = std::env::var("SNMENU_CONFIG") {
+        if std::path::Path::new(&config_path).exists() {
+            return Ok(config_path);
+        }
+    }
+
+    // Try XDG_CONFIG_HOME next
     if let Ok(xdg_config) = std::env::var("XDG_CONFIG_HOME") {
         let path = format!("{}/cpmenu/layout", xdg_config);
         if std::path::Path::new(&path).exists() {
@@ -250,9 +254,15 @@ fn build_ui() {
         let center_y = height / 2.0;
         let progress = state.animation_progress;
 
-        let anim_x = state.start_x + (center_x - state.start_x) * progress;
-        let anim_y = state.start_y + (center_y - state.start_y) * progress;
-        let opacity = progress; // Also fade in
+        // Only slide for root menu, fade only for submenus
+        let (anim_x, anim_y) = if state.in_submenu() {
+            (center_x, center_y) // No slide for submenu, only fade
+        } else {
+            let x = state.start_x + (center_x - state.start_x) * progress;
+            let y = state.start_y + (center_y - state.start_y) * progress;
+            (x, y)
+        };
+        let opacity = progress; // Fade in
 
         // Apply animation to the menu itself
         let _ = cr.save();
@@ -390,20 +400,28 @@ fn build_ui() {
             let mut state = state_click.borrow_mut();
             if let Some(button) = state.current_menu().get(clicked as usize).cloned() {
                 if button.has_submenu() {
-                    // Navigate into submenu
+                    // Navigate into submenu - don't close window
                     state.push_submenu(button.children.clone());
                     drop(state); // Release borrow
                     widget.queue_draw();
+                    return true.into();
                 } else {
-                    // Execute action
+                    // Execute action and close window
                     log::info!("Executing action: {}", button.action);
                     drop(state); // Release borrow before executing command
                     execute_command(&button.action);
+
+                    // Hide window after executing action
+                    window_clone.hide();
+                    glib::idle_add_once(|| {
+                        gtk::main_quit();
+                    });
+                    return true.into();
                 }
             }
         }
 
-        // Hide window immediately on any click (button or empty area)
+        // Hide window on empty area click
         window_clone.hide();
 
         // Queue quit to happen immediately after event processing
