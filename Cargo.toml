@@ -1,10 +1,10 @@
 [package]
-name = "cpmenu"
+name = "snmenu"
 version = "0.3.0"
 edition = "2021"
 authors = ["Sleep-No-More", "ArtsyMacaw"]
 license = "MIT"
-description = "Circular Power Menu - A beautiful circular power menu for Wayland"
+description = "SNMenu - A beautiful circular menu for Wayland with customizable buttons"
 readme = "README.md"
 
 [dependencies]
@@ -29,7 +29,7 @@ lto = true
 codegen-units = 1
 
 [[bin]]
-name = "cpmenu"
+name = "snmenu"
 path = "src/main.rs"
 
 [features]

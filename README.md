@@ -1,4 +1,4 @@
-# CPMenu - Circular Menu for Wayland
+# SNMenu - Circular Menu for Wayland
 
 A modern circular menu for Wayland desktop environments. Built in Rust with GTK3 and Cairo. Use it as a power menu, application launcher (replacing rofi/dmenu), or any general-purpose command launcher.
 
@@ -17,7 +17,7 @@ Inspired by [wlogout](https://github.com/ArtsyMacaw/wlogout).
 
 ## Screenshots
 
-![CPMenu Circular Menu](screenshots/screenshot_20251020_105201.png)
+![SNMenu Circular Menu](screenshots/screenshot_20251020_105201.png)
 
 A circular menu layout with wedge-shaped buttons arranged in a ring pattern.
 
@@ -26,13 +26,13 @@ A circular menu layout with wedge-shaped buttons arranged in a ring pattern.
 ### From AUR
 
 ```bash
-paru -S cpmenu
+paru -S snmenu
 ```
 
 Then use the custom compiled binary:
 
 ```bash
-sudo cp target/release/cpmenu /usr/local/bin/
+sudo cp target/release/snmenu /usr/local/bin/
 ```
 
 ### Build from Source
@@ -40,10 +40,10 @@ sudo cp target/release/cpmenu /usr/local/bin/
 Clone this repository and build:
 
 ```bash
-git clone https://github.com/Sleep-No-More/cpmenu.git
-cd cpmenu
+git clone https://github.com/Sleep-No-More/SNMenu.git
+cd SNMenu
 cargo build --release
-sudo cp target/release/cpmenu /usr/local/bin/
+sudo cp target/release/snmenu /usr/local/bin/
 ```
 
 ### Dependencies
@@ -56,7 +56,7 @@ sudo cp target/release/cpmenu /usr/local/bin/
 
 ### Layout File
 
-Location: ~/.config/cpmenu/layout
+Location: ~/.config/snmenu/layout
 
 JSON array format:
 
@@ -98,7 +98,7 @@ See [CUSTOMIZATION.md](CUSTOMIZATION.md) for detailed customization options and 
 
 ### Style File
 
-Location: ~/.config/cpmenu/style.css
+Location: ~/.config/snmenu/style.css
 
 Customize button appearance using GTK CSS.
 
@@ -111,7 +111,7 @@ Add a custom widget to ~/.config/waybar/config.jsonc:
 ```jsonc
 "custom/menu": {
     "format": "Menu",
-    "on-click": "cpmenu -l ~/.config/cpmenu/layout -C ~/.config/cpmenu/style.css"
+    "on-click": "snmenu -l ~/.config/snmenu/layout -C ~/.config/snmenu/style.css"
 }
 ```
 
@@ -249,26 +249,26 @@ Ensure style.css syntax is valid GTK CSS.
 
 ```bash
 cargo build
-./target/debug/cpmenu
+./target/debug/snmenu
 ```
 
 ### Building Release
 
 ```bash
 cargo build --release
-./target/release/cpmenu
+./target/release/snmenu
 ```
 
 ### Testing Custom Changes
 
 ```bash
 # Test with specific layout
-./target/debug/cpmenu -l ~/.config/cpmenu/layout -C ~/.config/cpmenu/style.css
+./target/debug/snmenu -l ~/.config/snmenu/layout -C ~/.config/snmenu/style.css
 
 # With debug logging
-RUST_LOG=debug ./target/debug/cpmenu
+RUST_LOG=debug ./target/debug/snmenu
 ```
 
 ## License
 
-CPMenu is released under the MIT License. See LICENSE file for details.
+SNMenu is released under the MIT License. See LICENSE file for details.
