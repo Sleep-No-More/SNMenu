@@ -227,34 +227,42 @@ fn build_ui() {
             .buttons
             .iter()
             .map(|btn| {
-                // Use red/coral for power/shutdown button, light blue for others
-                let (base_color, hover_color) = if btn.label.contains("power")
-                    || btn.label.contains("shutdown")
-                    || btn.text.contains("Shutdown")
-                    || btn.text.contains("Power")
-                {
-                    // Power button gets the red/coral color - lighter at rest, darker on hover
-                    (
-                        parse_color_with_alpha("#E07070", 0.8 * opacity),
-                        parse_color_with_alpha("#DC5050", 0.9 * opacity),
-                    )
-                } else {
-                    // Other buttons get light blue base
-                    (
-                        parse_color_with_alpha("#81A1C1", 0.35 * opacity),
-                        parse_color_with_alpha("#5E81AC", 0.55 * opacity),
-                    )
-                };
+                // Use custom colors if provided, otherwise use defaults
+                let (base_color, hover_color) =
+                    if let (Some(color), Some(hover)) = (&btn.color, &btn.hover_color) {
+                        // Custom colors from config
+                        (
+                            parse_color_with_alpha(color, 0.8 * opacity),
+                            parse_color_with_alpha(hover, 0.9 * opacity),
+                        )
+                    } else {
+                        // Default neutral blue colors for any button type
+                        (
+                            parse_color_with_alpha("#81A1C1", 0.35 * opacity),
+                            parse_color_with_alpha("#5E81AC", 0.55 * opacity),
+                        )
+                    };
 
-                // Try to find icon in icons folder
-                let icon_path = [
-                    format!("./icons/{}.png", btn.label),
-                    format!("/usr/local/share/cpmenu/icons/{}.png", btn.label),
-                    format!("/usr/share/cpmenu/icons/{}.png", btn.label),
-                ]
-                .iter()
-                .find(|p| std::path::Path::new(p).exists())
-                .cloned();
+                // Try to find icon in order:
+                // 1. Custom icon_path from config
+                // 2. Default icon search paths
+                let icon_path = if let Some(custom_path) = &btn.icon_path {
+                    if std::path::Path::new(custom_path).exists() {
+                        Some(custom_path.clone())
+                    } else {
+                        log::warn!("Custom icon not found: {}", custom_path);
+                        None
+                    }
+                } else {
+                    [
+                        format!("./icons/{}.png", btn.label),
+                        format!("/usr/local/share/cpmenu/icons/{}.png", btn.label),
+                        format!("/usr/share/cpmenu/icons/{}.png", btn.label),
+                    ]
+                    .iter()
+                    .find(|p| std::path::Path::new(p).exists())
+                    .cloned()
+                };
 
                 CircularButton {
                     label: btn.text.clone(),
@@ -262,6 +270,8 @@ fn build_ui() {
                     color: base_color,
                     hover_color,
                     icon_path,
+                    icon_char: btn.icon_char,
+                    show_label: btn.show_label,
                 }
             })
             .collect();

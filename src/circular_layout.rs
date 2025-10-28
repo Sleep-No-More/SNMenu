@@ -1,4 +1,22 @@
+use std::cell::RefCell;
 use std::f64::consts::PI;
+
+// Animation configuration constants.
+const INNER_RADIUS_RATIO: f64 = 0.3;
+const MENU_RADIUS_PERCENT: f64 = 0.35;
+const ICON_SIZE: f64 = 48.0;
+const LABEL_OFFSET: f64 = 40.0;
+const LABEL_FONT_SIZE: f64 = 14.0;
+const LABEL_FONT_ALPHA: f64 = 0.9;
+const HOVER_Y_OFFSET: f64 = 8.0;
+const HOVER_SCALE: f64 = 1.12;
+const ANIMATION_SPEED: f64 = 0.01;
+
+// Thread-local animation state for smooth transitions.
+thread_local! {
+    static CURRENT_SCALE: RefCell<Vec<f64>> = RefCell::new(vec![1.0; 6]);
+    static CURRENT_Y_OFFSET: RefCell<Vec<f64>> = RefCell::new(vec![0.0; 6]);
+}
 
 /// Represents a single circular button wedge
 #[derive(Clone, Debug)]
@@ -10,12 +28,9 @@ pub struct CircularButton {
     pub hover_color: (f64, f64, f64, f64),
     #[allow(dead_code)]
     pub icon_path: Option<String>, // Path to icon file
+    pub icon_char: Option<char>, // Custom icon character (Unicode/Nerd Font)
+    pub show_label: bool,        // Whether to show text label
 }
-
-/// Animation state for smooth transitions
-static mut CURRENT_SCALE: [f64; 6] = [1.0; 6];
-static mut CURRENT_Y_OFFSET: [f64; 6] = [0.0; 6];
-const ANIMATION_SPEED: f64 = 0.01;
 
 /// Calculate which wedge button the user clicked
 pub fn get_clicked_button(
@@ -79,9 +94,11 @@ fn draw_button_wedge(
     base_color: (f64, f64, f64, f64),
     hover_color: (f64, f64, f64, f64),
     scale: f64,
+    icon_char: Option<char>,
+    show_label: bool,
 ) {
     let mid_angle = (start_angle + end_angle) / 2.0;
-    let inner_radius = radius * 0.3;
+    let inner_radius = radius * INNER_RADIUS_RATIO;
 
     // Calculate scaled outer radius (inner stays fixed)
     let scaled_radius = if scale > 1.0 { radius * scale } else { radius };
@@ -106,48 +123,67 @@ fn draw_button_wedge(
     let icon_x = center_x + text_radius * mid_angle.cos();
     let icon_y = center_y + text_radius * mid_angle.sin();
 
-    // Map power menu labels to Nerd Font power/system symbols
-    // Handles both plain text and emoji+text formats
-    let symbol_char = match label {
-        // Plain text formats
-        "LOCK" | "Lock" => '\u{f023}',     // Nerd Font lock icon
-        "SLEEP" | "Sleep" => '\u{f186}',   // Nerd Font moon/sleep icon
-        "LOGOUT" | "Logout" => '\u{f08b}', // Nerd Font sign-out icon
-        "POWER" | "Power" | "Shutdown" | "SHUTDOWN" => '\u{f011}', // Nerd Font power icon
-        "SUSPEND" | "Suspend" => '\u{f04c}', // Nerd Font pause icon (double bar)
-        "REBOOT" | "Reboot" => '\u{f021}', // Nerd Font sync/refresh icon
-        // Emoji + text formats (from user config)
-        s if s.contains("Lock") => '\u{f023}',
-        s if s.contains("Hibernate") => '\u{f186}',
-        s if s.contains("Logout") => '\u{f08b}',
-        s if s.contains("Shutdown") => '\u{f011}',
-        s if s.contains("Suspend") => '\u{f04c}',
-        s if s.contains("Reboot") => '\u{f021}',
-        _ => {
-            log::warn!("No match for label: '{}'", label);
-            '•'
-        }
-    };
+    // Use custom icon_char if provided, otherwise use a generic default
+    let symbol_char = icon_char.unwrap_or_else(|| {
+        // If no custom icon is provided, use a generic bullet point
+        // Users should specify icon_char in their config for any button
+        log::debug!(
+            "No icon specified for label: '{}', using default bullet",
+            label
+        );
+        '•'
+    });
 
-    // Explicitly select Nerd Font for symbol rendering
+    // Draw the icon - use FiraCode Nerd Font which is available
     cr.select_font_face(
-        "JetBrainsMono Nerd Font",
+        "FiraCode Nerd Font",
         gtk::gdk::cairo::FontSlant::Normal,
         gtk::gdk::cairo::FontWeight::Normal,
     );
     // Scale the icon size based on hover state
-    let icon_size = 48.0 * scale;
+    let icon_size = ICON_SIZE * scale;
     cr.set_font_size(icon_size);
 
     // Get text extents for proper centering
     let symbol_str = symbol_char.to_string();
-    if let Ok(extents) = cr.text_extents(&symbol_str) {
-        let text_x = icon_x - extents.width() / 2.0;
-        let text_y = icon_y + extents.height() / 2.0;
+    match cr.text_extents(&symbol_str) {
+        Ok(extents) => {
+            let text_x = icon_x - extents.width() / 2.0;
+            let text_y = icon_y + extents.height() / 2.0;
 
-        cr.move_to(text_x, text_y);
-        cr.set_source_rgba(1.0, 1.0, 1.0, 1.0);
-        let _ = cr.show_text(&symbol_str);
+            cr.move_to(text_x, text_y);
+            cr.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+            let _ = cr.show_text(&symbol_str);
+        }
+        Err(e) => {
+            log::warn!("Failed to render icon: {:?}", e);
+        }
+    }
+
+    // Draw button label text below the icon (only if show_label is true)
+    if !show_label {
+        return;
+    }
+
+    cr.select_font_face(
+        "Sans",
+        gtk::gdk::cairo::FontSlant::Normal,
+        gtk::gdk::cairo::FontWeight::Normal,
+    );
+    cr.set_font_size(LABEL_FONT_SIZE);
+    cr.set_source_rgba(1.0, 1.0, 1.0, LABEL_FONT_ALPHA);
+
+    match cr.text_extents(label) {
+        Ok(label_extents) => {
+            let label_x = icon_x - label_extents.width() / 2.0;
+            let label_y = icon_y + LABEL_OFFSET;
+
+            cr.move_to(label_x, label_y);
+            let _ = cr.show_text(label);
+        }
+        Err(e) => {
+            log::warn!("Failed to render label '{}': {:?}", label, e);
+        }
     }
 }
 /// Draw the complete circular menu as a DONUT/RING with labels
@@ -170,32 +206,53 @@ pub fn draw_circular_layout(
     cr.set_source_rgba(0.0, 0.0, 0.0, 0.35);
     let _ = cr.paint();
 
-    // Update animation states smoothly (unsafe due to static mut)
-    unsafe {
-        for (i, _button) in buttons.iter().enumerate() {
-            let target_scale = if i as i32 == hover_button { 1.12 } else { 1.0 };
+    // Update animation states smoothly using thread-local storage.
+    CURRENT_SCALE.with(|scale_cell| {
+        CURRENT_Y_OFFSET.with(|offset_cell| {
+            let mut scales = scale_cell.borrow_mut();
+            let mut offsets = offset_cell.borrow_mut();
 
-            if CURRENT_SCALE[i] < target_scale {
-                CURRENT_SCALE[i] += ANIMATION_SPEED;
-                if CURRENT_SCALE[i] > target_scale {
-                    CURRENT_SCALE[i] = target_scale;
-                }
-            } else if CURRENT_SCALE[i] > target_scale {
-                CURRENT_SCALE[i] -= ANIMATION_SPEED;
-                if CURRENT_SCALE[i] < target_scale {
-                    CURRENT_SCALE[i] = target_scale;
-                }
+            // Ensure vectors are properly sized.
+            if scales.len() < buttons.len() {
+                scales.resize(buttons.len(), 1.0);
+            }
+            if offsets.len() < buttons.len() {
+                offsets.resize(buttons.len(), 0.0);
             }
 
-            // Animate radial expansion
-            let target_y = if i as i32 == hover_button { 8.0 } else { 0.0 };
-            if (CURRENT_Y_OFFSET[i] - target_y).abs() > 0.1 {
-                CURRENT_Y_OFFSET[i] += (target_y - CURRENT_Y_OFFSET[i]) * 0.05;
-            } else {
-                CURRENT_Y_OFFSET[i] = target_y;
+            for (i, _button) in buttons.iter().enumerate() {
+                let target_scale = if i as i32 == hover_button {
+                    HOVER_SCALE
+                } else {
+                    1.0
+                };
+
+                if scales[i] < target_scale {
+                    scales[i] += ANIMATION_SPEED;
+                    if scales[i] > target_scale {
+                        scales[i] = target_scale;
+                    }
+                } else if scales[i] > target_scale {
+                    scales[i] -= ANIMATION_SPEED;
+                    if scales[i] < target_scale {
+                        scales[i] = target_scale;
+                    }
+                }
+
+                // Animate radial expansion
+                let target_y = if i as i32 == hover_button {
+                    HOVER_Y_OFFSET
+                } else {
+                    0.0
+                };
+                if (offsets[i] - target_y).abs() > 0.1 {
+                    offsets[i] += (target_y - offsets[i]) * 0.05;
+                } else {
+                    offsets[i] = target_y;
+                }
             }
-        }
-    }
+        })
+    });
 
     // Draw each button wedge
     for (i, button) in buttons.iter().enumerate() {
@@ -203,7 +260,7 @@ pub fn draw_circular_layout(
         let button_end = button_start + wedge_size;
         let is_hover = i as i32 == hover_button;
 
-        let scale = unsafe { CURRENT_SCALE[i] };
+        let scale = CURRENT_SCALE.with(|cell| cell.borrow().get(i).copied().unwrap_or(1.0));
 
         draw_button_wedge(
             cr,
@@ -218,6 +275,8 @@ pub fn draw_circular_layout(
             button.color,
             button.hover_color,
             scale,
+            button.icon_char,
+            button.show_label,
         );
     }
 

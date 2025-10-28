@@ -1,0 +1,47 @@
+[
+    {
+        "label": "lock",
+        "action": "hyprlock",
+        "text": "Lock",
+        "keybind": "l",
+        "color": "#E07070",
+        "hover_color": "#DC5050",
+        "icon_char": "\uf023"
+    },
+    {
+        "label": "suspend",
+        "action": "sudo systemctl suspend",
+        "text": "Suspend",
+        "keybind": "u",
+        "color": "#81A1C1",
+        "hover_color": "#5E81AC",
+        "icon_char": "\uf04c"
+    },
+    {
+        "label": "logout",
+        "action": "loginctl terminate-session $XDG_SESSION_ID",
+        "text": "Logout",
+        "keybind": "e",
+        "color": "#81A1C1",
+        "hover_color": "#5E81AC",
+        "icon_char": "\uf08b"
+    },
+    {
+        "label": "reboot",
+        "action": "systemctl reboot",
+        "text": "Reboot",
+        "keybind": "r",
+        "color": "#FF8C00",
+        "hover_color": "#FF6347",
+        "icon_char": "\uf021"
+    },
+    {
+        "label": "shutdown",
+        "action": "systemctl poweroff",
+        "text": "Shutdown",
+        "keybind": "s",
+        "color": "#DC143C",
+        "hover_color": "#8B0000",
+        "icon_char": "\uf011"
+    }
+]

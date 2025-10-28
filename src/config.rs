@@ -12,6 +12,21 @@ pub struct Button {
     pub text: String,
     #[serde(default)]
     pub keybind: Option<char>,
+    /// Optional custom icon path (e.g., "/path/to/icon.png")
+    #[serde(default)]
+    pub icon_path: Option<String>,
+    /// Optional custom icon character (Unicode/Nerd Font symbol)
+    #[serde(default)]
+    pub icon_char: Option<char>,
+    /// Optional base button color in hex format (e.g., "#81A1C1")
+    #[serde(default)]
+    pub color: Option<String>,
+    /// Optional hover button color in hex format (e.g., "#5E81AC")
+    #[serde(default)]
+    pub hover_color: Option<String>,
+    /// Whether to show the text label below the icon (default: false)
+    #[serde(default)]
+    pub show_label: bool,
 }
 
 /// Load configuration from JSON file

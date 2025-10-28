@@ -1,51 +1,68 @@
+/*
+ * CPMenu GTK CSS Stylesheet
+ * 
+ * This stylesheet customizes the GTK3 appearance of CPMenu.
+ * 
+ * NOTE: Button colors are primarily controlled by the layout configuration file.
+ * This CSS is for advanced styling of GTK widgets (background, text, borders, etc.).
+ * 
+ * Colors used (Nord Theme):
+ * - Background: #2E3440 (Nord polar night 0)
+ * - Surface: #434C5E (Nord polar night 2)
+ * - Text: #D8DEE9 (Nord snow storm 0)
+ * - Accent: #88C0D0 (Nord frost 2)
+ */
+
+/* ============================================================================
+   Global Styles - Apply to all GTK widgets
+   ============================================================================ */
+
 * {
-	background-image: none;
-	box-shadow: none;
+    /* Remove unwanted default effects */
+    background-image: none;
+    box-shadow: none;
 }
+
+/* ============================================================================
+   Window Styling - Main application window
+   ============================================================================ */
 
 window {
-	background-color: rgba(46, 52, 64, 0.3);
+    /* Semi-transparent dark background - allows compositor transparency */
+    background-color: rgba(46, 52, 64, 0.3);
 }
+
+/* ============================================================================
+   Button Styling - Circular menu buttons
+   ============================================================================ */
 
 button {
+    /* Border and shape */
     border-radius: 0;
     border-color: black;
-	text-decoration-color: #D8DEE9;
+    border-style: solid;
+    border-width: 1px;
+    
+    /* Text styling */
+    text-decoration-color: #D8DEE9;
     color: #D8DEE9;
-	background-color: rgba(67, 76, 94, 0.5);
-	border-style: solid;
-	border-width: 1px;
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 25%;
+    
+    /* Background styling */
+    background-color: rgba(67, 76, 94, 0.5);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 25%;
 }
 
-button:focus, button:active, button:hover {
-	background-color: rgba(136, 192, 208, 0.8);
-	outline-style: none;
-	cursor: pointer;
-}
-
-#lock {
-    background-image: image(url("/usr/share/cpmenu/assets/lock.svg"), url("/usr/local/share/cpmenu/assets/lock.svg"));
-}
-
-#logout {
-    background-image: image(url("/usr/share/cpmenu/assets/logout.svg"), url("/usr/local/share/cpmenu/assets/logout.svg"));
-}
-
-#suspend {
-    background-image: image(url("/usr/share/cpmenu/assets/suspend.svg"), url("/usr/local/share/cpmenu/assets/suspend.svg"));
-}
-
-#hibernate {
-    background-image: image(url("/usr/share/cpmenu/assets/hibernate.svg"), url("/usr/local/share/cpmenu/assets/hibernate.svg"));
-}
-
-#shutdown {
-    background-image: image(url("/usr/share/cpmenu/assets/shutdown.svg"), url("/usr/local/share/cpmenu/assets/shutdown.svg"));
-}
-
-#reboot {
-    background-image: image(url("/usr/share/cpmenu/assets/reboot.svg"), url("/usr/local/share/cpmenu/assets/reboot.svg"));
+/*
+ * Button States - Hover and focus effects
+ * Note: Actual button colors are overridden by the application's Cairo rendering,
+ * which draws the circular buttons with colors from the layout configuration.
+ */
+button:focus,
+button:active,
+button:hover {
+    background-color: rgba(136, 192, 208, 0.8);
+    outline-style: none;
+    cursor: pointer;
 }

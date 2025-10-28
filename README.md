@@ -1,21 +1,23 @@
-# CPMenu - Circular Power Menu for Hyprland
+# CPMenu - Circular Menu for Wayland
 
-A modern circular power menu for Wayland desktop environments. Built in Rust with GTK3 and Cairo.
+A modern circular menu for Wayland desktop environments. Built in Rust with GTK3 and Cairo. Use it as a power menu, application launcher (replacing rofi/dmenu), or any general-purpose command launcher.
 
 Inspired by [wlogout](https://github.com/ArtsyMacaw/wlogout).
 
 ## Features
 
 - Circular Layout - Semi-transparent donut ring design
-- Customizable Buttons - JSON configuration for actions
+- General-Purpose - Works as power menu, app launcher, or custom command menu
+- Customizable Buttons - JSON configuration for any commands and actions
 - Smooth Animations - Fast, responsive interface
 - Keyboard Shortcuts - Quick access with configurable key bindings
 - Themeable - GTK CSS styling support
+- Fully Customizable - Per-button colors and icons
 - Wayland Native - Built for modern Wayland compositors
 
 ## Screenshots
 
-![CPMenu Circular Power Menu](screenshots/screenshot_20251020_105201.png)
+![CPMenu Circular Menu](screenshots/screenshot_20251020_105201.png)
 
 A circular menu layout with wedge-shaped buttons arranged in a ring pattern.
 
@@ -64,23 +66,35 @@ JSON array format:
         "label": "lock",
         "action": "hyprlock",
         "text": "Lock",
-        "keybind": "l"
+        "keybind": "l",
+        "color": "#E07070",
+        "hover_color": "#DC5050",
+        "icon_char": "\u{f023}"
     },
     {
         "label": "shutdown",
         "action": "systemctl poweroff",
         "text": "Shutdown",
-        "keybind": "s"
+        "keybind": "s",
+        "color": "#E07070",
+        "hover_color": "#DC5050",
+        "icon_char": "\u{f011}"
     }
 ]
 ```
 
 Button properties:
 
-- label: Unique identifier for button styling
-- action: Command to execute
-- text: Display text on button
-- keybind: Optional keyboard shortcut character
+- **label**: Unique identifier for button styling
+- **action**: Command to execute
+- **text**: Display text on button
+- **keybind** (optional): Keyboard shortcut character
+- **color** (optional): Button color in hex format (e.g., "#81A1C1")
+- **hover_color** (optional): Color when hovering, in hex format
+- **icon_char** (optional): Custom icon character (Unicode or Nerd Font symbol)
+- **icon_path** (optional): Path to custom icon image file
+
+See [CUSTOMIZATION.md](CUSTOMIZATION.md) for detailed customization options and examples.
 
 ### Style File
 
@@ -109,16 +123,99 @@ Menu controls:
 - Mouse - Click buttons or press Esc to close
 - Hover - Visual feedback on button hover
 
+## Use Cases
+
+### Power Menu (Default)
+
+Configure shutdown, reboot, suspend, and lock commands:
+
+```json
+[
+    {
+        "label": "shutdown",
+        "action": "systemctl poweroff",
+        "text": "Shutdown",
+        "color": "#DC143C",
+        "hover_color": "#8B0000",
+        "icon_char": "\u{f011}"
+    }
+]
+```
+
+### Application Launcher (Replace rofi)
+
+Use as a fast app launcher with custom applications:
+
+```json
+[
+    {
+        "label": "browser",
+        "action": "firefox",
+        "text": "Firefox",
+        "color": "#FF7F50",
+        "hover_color": "#FF6347",
+        "icon_char": "\u{f269}"
+    },
+    {
+        "label": "terminal",
+        "action": "kitty",
+        "text": "Terminal",
+        "color": "#2E8B57",
+        "hover_color": "#228B22",
+        "icon_char": "\u{f18e}"
+    }
+]
+```
+
+### Quick Commands
+
+Create a menu of frequently used commands:
+
+```json
+[
+    {
+        "label": "screenshot",
+        "action": "grim -g \"$(slurp)\" - | wl-copy",
+        "text": "Screenshot",
+        "color": "#8B008B",
+        "icon_char": "\u{f03e}"
+    },
+    {
+        "label": "volume",
+        "action": "pavucontrol",
+        "text": "Volume",
+        "color": "#4169E1",
+        "icon_char": "\u{f028}"
+    }
+]
+```
+
 ## Color Customization
 
-Modify button appearance by editing the stylesheet in ~/.config/cpmenu/style.css or modifying src/main.rs for runtime color values.
+Button colors and icons are now fully customizable through the layout configuration file:
 
-Rebuild after changes:
+- **Per-button colors**: Set custom base and hover colors for each button
+- **Custom icons**: Use Unicode symbols, Nerd Font icons, or custom image files
+- **Fallback defaults**: Smart defaults applied if colors/icons not specified
 
-```bash
-cargo build --release
-sudo cp target/release/cpmenu /usr/local/bin/
+Example with custom colors:
+
+```json
+{
+    "label": "suspend",
+    "action": "sudo systemctl suspend",
+    "text": "Suspend",
+    "color": "#2E8B57",
+    "hover_color": "#228B22",
+    "icon_char": "\u{f04c}"
+}
 ```
+
+For detailed customization guide, see [CUSTOMIZATION.md](CUSTOMIZATION.md).
+
+For advanced styling, also modify the stylesheet in ~/.config/cpmenu/style.css.
+
+Note: Requires JetBrainsMono Nerd Font for best icon rendering.
 
 ## Project Structure
 
