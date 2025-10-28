@@ -86,13 +86,80 @@ JSON array format:
 Button properties:
 
 - **label**: Unique identifier for button styling
-- **action**: Command to execute
+- **action**: Command to execute (not needed if button has submenu)
 - **text**: Display text on button
 - **keybind** (optional): Keyboard shortcut character
 - **color** (optional): Button color in hex format (e.g., "#81A1C1")
 - **hover_color** (optional): Color when hovering, in hex format
 - **icon_char** (optional): Custom icon character (Unicode or Nerd Font symbol)
 - **icon_path** (optional): Path to custom icon image file
+- **show_label** (optional): Whether to display text label (default: false)
+- **children** (optional): Array of Button objects to create a submenu
+
+### Submenu Support
+
+Create hierarchical menus by adding a `children` array to a button. Clicking a button with children opens that submenu. Press **Esc** to go back to the parent menu.
+
+Example with submenus:
+
+```json
+[
+    {
+        "label": "system",
+        "text": "System",
+        "color": "#4169E1",
+        "hover_color": "#1E90FF",
+        "icon_char": "\u{f085}",
+        "children": [
+            {
+                "label": "lock",
+                "action": "hyprlock",
+                "text": "Lock",
+                "color": "#E07070",
+                "hover_color": "#DC5050",
+                "icon_char": "\u{f023}"
+            },
+            {
+                "label": "suspend",
+                "action": "systemctl suspend",
+                "text": "Suspend",
+                "color": "#2E8B57",
+                "hover_color": "#228B22",
+                "icon_char": "\u{f04c}"
+            },
+            {
+                "label": "shutdown",
+                "action": "systemctl poweroff",
+                "text": "Shutdown",
+                "color": "#DC143C",
+                "hover_color": "#8B0000",
+                "icon_char": "\u{f011}"
+            }
+        ]
+    },
+    {
+        "label": "apps",
+        "text": "Applications",
+        "color": "#FF7F50",
+        "hover_color": "#FF6347",
+        "icon_char": "\u{f0a4}",
+        "children": [
+            {
+                "label": "browser",
+                "action": "firefox",
+                "text": "Firefox",
+                "icon_char": "\u{f269}"
+            },
+            {
+                "label": "terminal",
+                "action": "kitty",
+                "text": "Terminal",
+                "icon_char": "\u{f18e}"
+            }
+        ]
+    }
+]
+```
 
 See [CUSTOMIZATION.md](CUSTOMIZATION.md) for detailed customization options and examples.
 
@@ -119,9 +186,10 @@ Add a custom widget to ~/.config/waybar/config.jsonc:
 
 Menu controls:
 
-- Keyboard - Use configured key bindings
-- Mouse - Click buttons or press Esc to close
-- Hover - Visual feedback on button hover
+- **Mouse Click** - Click buttons to execute action or open submenu
+- **Escape** - Close submenu or exit menu
+- **Hover** - Visual feedback on button hover
+- Submenus navigate with **Esc** to return to parent menu
 
 ## Use Cases
 

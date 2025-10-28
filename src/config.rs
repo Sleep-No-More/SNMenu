@@ -3,10 +3,12 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
-/// Button configuration
+/// Button configuration with optional recursive submenu support
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Button {
     pub label: String,
+    /// Action to execute (mutually exclusive with children)
+    #[serde(default)]
     pub action: String,
     #[serde(default)]
     pub text: String,
@@ -27,6 +29,21 @@ pub struct Button {
     /// Whether to show the text label below the icon (default: false)
     #[serde(default)]
     pub show_label: bool,
+    /// Optional submenu buttons (nested menu structure)
+    #[serde(default)]
+    pub children: Vec<Button>,
+}
+
+impl Button {
+    /// Check if this button has a submenu
+    pub fn has_submenu(&self) -> bool {
+        !self.children.is_empty()
+    }
+
+    /// Check if this button is a leaf (executable) button
+    pub fn is_leaf(&self) -> bool {
+        !self.has_submenu()
+    }
 }
 
 /// Load configuration from JSON file

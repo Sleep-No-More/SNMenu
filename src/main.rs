@@ -13,11 +13,55 @@ use std::rc::Rc;
 use std::time::Duration;
 
 struct AppState {
-    buttons: Vec<Button>,
+    /// Stack of menu levels: root menu at index 0, submenus stacked on top
+    menu_stack: Vec<Vec<Button>>,
     hover_button: i32,
     animation_progress: f64, // 0.0 to 1.0 for slide-in
     start_x: f64,
     start_y: f64,
+}
+
+impl AppState {
+    fn new(buttons: Vec<Button>) -> Self {
+        Self {
+            menu_stack: vec![buttons],
+            hover_button: -1,
+            animation_progress: 0.0,
+            start_x: 0.0,
+            start_y: 0.0,
+        }
+    }
+
+    /// Get the current menu (top of stack)
+    fn current_menu(&self) -> &Vec<Button> {
+        self.menu_stack.last().expect("Menu stack should never be empty")
+    }
+
+    /// Get mutable reference to current menu
+    fn current_menu_mut(&mut self) -> &mut Vec<Button> {
+        self.menu_stack.last_mut().expect("Menu stack should never be empty")
+    }
+
+    /// Navigate into a submenu
+    fn push_submenu(&mut self, submenu: Vec<Button>) {
+        self.menu_stack.push(submenu);
+        self.hover_button = -1;
+        self.animation_progress = 0.0;
+    }
+
+    /// Navigate back to parent menu
+    fn pop_submenu(&mut self) {
+        if self.menu_stack.len() > 1 {
+            self.menu_stack.pop();
+            self.hover_button = -1;
+            self.animation_progress = 0.0;
+        }
+    }
+
+    /// Check if we're in a submenu
+    fn in_submenu(&self) -> bool {
+        self.menu_stack.len() > 1
+    }
 }
 
 fn main() {
@@ -166,13 +210,9 @@ fn build_ui() {
     // Get mouse position for slide-in animation
     let (mouse_x, mouse_y) = get_mouse_position();
 
-    let state = Rc::new(RefCell::new(AppState {
-        buttons,
-        hover_button: -1,
-        animation_progress: 0.0,
-        start_x: mouse_x,
-        start_y: mouse_y,
-    }));
+    let state = Rc::new(RefCell::new(AppState::new(buttons)));
+    state.borrow_mut().start_x = mouse_x;
+    state.borrow_mut().start_y = mouse_y;
 
     // Create main window
     let window = Window::new(WindowType::Toplevel);
@@ -224,7 +264,7 @@ fn build_ui() {
 
         // Convert buttons to CircularButton format
         let circular_buttons: Vec<CircularButton> = state
-            .buttons
+            .current_menu()
             .iter()
             .map(|btn| {
                 // Use custom colors if provided, otherwise use defaults
@@ -304,7 +344,7 @@ fn build_ui() {
             center_x,
             center_y,
             radius,
-            state_motion.borrow().buttons.len(),
+            state_motion.borrow().current_menu().len(),
             -PI / 2.0,
         );
 
@@ -342,15 +382,24 @@ fn build_ui() {
             center_x,
             center_y,
             radius,
-            state_click.borrow().buttons.len(),
+            state_click.borrow().current_menu().len(),
             -PI / 2.0,
         );
 
         if clicked >= 0 {
-            let state = state_click.borrow();
-            if let Some(button) = state.buttons.get(clicked as usize) {
-                log::info!("Executing action: {}", button.action);
-                execute_command(&button.action);
+            let mut state = state_click.borrow_mut();
+            if let Some(button) = state.current_menu().get(clicked as usize).cloned() {
+                if button.has_submenu() {
+                    // Navigate into submenu
+                    state.push_submenu(button.children.clone());
+                    drop(state); // Release borrow
+                    widget.queue_draw();
+                } else {
+                    // Execute action
+                    log::info!("Executing action: {}", button.action);
+                    drop(state); // Release borrow before executing command
+                    execute_command(&button.action);
+                }
             }
         }
 
@@ -379,12 +428,23 @@ fn build_ui() {
     });
 
     let window_clone = window.clone();
+    let state_key = state.clone();
+    let drawing_area_clone_key = drawing_area.clone();
     window.connect_key_press_event(move |_, key| match key.keyval() {
         gtk::gdk::keys::constants::Escape => {
-            window_clone.hide();
-            glib::idle_add_once(|| {
-                gtk::main_quit();
-            });
+            let mut state = state_key.borrow_mut();
+            if state.in_submenu() {
+                // Go back to parent menu
+                state.pop_submenu();
+                drop(state);
+                drawing_area_clone_key.queue_draw();
+            } else {
+                // Exit application
+                window_clone.hide();
+                glib::idle_add_once(|| {
+                    gtk::main_quit();
+                });
+            }
             true.into()
         }
         _ => false.into(),

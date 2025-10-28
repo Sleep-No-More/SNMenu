@@ -1,38 +1,74 @@
 [
     {
-        "label" : "lock",
-        "action" : "hyprlock",
-        "text" : "Lock",
-        "keybind" : "l"
+        "label" : "system",
+        "text" : "System",
+        "color" : "#4169E1",
+        "hover_color" : "#1E90FF",
+        "icon_char" : "⚙",
+        "children" : [
+            {
+                "label" : "lock",
+                "action" : "hyprlock",
+                "text" : "Lock",
+                "color" : "#E07070",
+                "hover_color" : "#DC5050",
+                "icon_char" : "🔒",
+                "keybind" : "l"
+            },
+            {
+                "label" : "suspend",
+                "action" : "sudo systemctl suspend",
+                "text" : "Suspend",
+                "color" : "#2E8B57",
+                "hover_color" : "#228B22",
+                "icon_char" : "⏸",
+                "keybind" : "u"
+            },
+            {
+                "label" : "hibernate",
+                "action" : "systemctl hibernate",
+                "text" : "Hibernate",
+                "color" : "#696969",
+                "hover_color" : "#555555",
+                "icon_char" : "❄",
+                "keybind" : "h"
+            }
+        ]
     },
     {
-        "label" : "hibernate",
-        "action" : "systemctl hibernate",
-        "text" : "Hibernate",
-        "keybind" : "h"
-    },
-    {
-        "label" : "logout",
-        "action" : "loginctl terminate-session $XDG_SESSION_ID",
-        "text" : "Logout",
-        "keybind" : "e"
-    },
-    {
-        "label" : "shutdown",
-        "action" : "systemctl poweroff",
-        "text" : "Shutdown",
-        "keybind" : "s"
-    },
-    {
-        "label" : "suspend",
-        "action" : "sudo systemctl suspend",
-        "text" : "Suspend",
-        "keybind" : "u"
-    },
-    {
-        "label" : "reboot",
-        "action" : "systemctl reboot",
-        "text" : "Reboot",
-        "keybind" : "r"
+        "label" : "power",
+        "text" : "Power",
+        "color" : "#B22222",
+        "hover_color" : "#8B0000",
+        "icon_char" : "⏻",
+        "children" : [
+            {
+                "label" : "logout",
+                "action" : "loginctl terminate-session $XDG_SESSION_ID",
+                "text" : "Logout",
+                "color" : "#FF8C00",
+                "hover_color" : "#FF7000",
+                "icon_char" : "↪",
+                "keybind" : "e"
+            },
+            {
+                "label" : "reboot",
+                "action" : "systemctl reboot",
+                "text" : "Reboot",
+                "color" : "#FF4500",
+                "hover_color" : "#DC3410",
+                "icon_char" : "🔄",
+                "keybind" : "r"
+            },
+            {
+                "label" : "shutdown",
+                "action" : "systemctl poweroff",
+                "text" : "Shutdown",
+                "color" : "#DC143C",
+                "hover_color" : "#8B0000",
+                "icon_char" : "⏹",
+                "keybind" : "s"
+            }
+        ]
     }
 ]

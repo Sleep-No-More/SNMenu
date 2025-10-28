@@ -226,25 +226,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
-name = "cpmenu"
-version = "0.2.3"
-dependencies = [
- "anyhow",
- "cairo-rs 0.21.2",
- "env_logger",
- "gdk",
- "gdk-pixbuf 0.21.2",
- "gio 0.21.2",
- "glib 0.21.3",
- "gtk",
- "log",
- "rsvg",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
-]
-
-[[package]]
 name = "env_filter"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1174,6 +1155,25 @@ name = "smallvec"
 version = "1.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+
+[[package]]
+name = "snmenu"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "cairo-rs 0.21.2",
+ "env_logger",
+ "gdk",
+ "gdk-pixbuf 0.21.2",
+ "gio 0.21.2",
+ "glib 0.21.3",
+ "gtk",
+ "log",
+ "rsvg",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+]
 
 [[package]]
 name = "syn"
